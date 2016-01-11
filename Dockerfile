@@ -1,16 +1,26 @@
-FROM mhart/alpine-node:base-5.3
+FROM phusion/baseimage
 MAINTAINER Wolfgang Frank <https://github.com/wfrank2509>
 
 WORKDIR /usr/src/app
 
-#RUN apk add --update make gcc g++ python
-#RUN npm install
-#RUN npm i pm2 -g
+RUN curl -sL https://deb.nodesource.com/setup_5.x | bash -
 
-#RUN apk del make gcc g++ python && \
-#	rm -rf /tmp/* /var/cache/apk/* /root/.npm /root/.node-gyp
+RUN apt-get update && apt-get install -y \
+        curl \
+        python \
+        make \
+        g++ \
+		nodejs
 
-ENV VIRTUAL_HOST=foo.bar.com
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN npm install pm2 -g
+RUN mkdir -p /usr/src/app
+
+VOLUME ["/usr/src/app"]
+
+ADD start.sh /start.sh
+RUN chmod 755 /start.sh
 
 EXPOSE 8080
-CMD ["node", "server.js"]
+CMD ["/start.sh"]
